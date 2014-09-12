@@ -5,7 +5,7 @@ with a support class for rendering as JSON objects.
 
 Example
 
-```
+```php
 $tiled = new \TiledTmx\Parser();
 $map = $tiled->parseFile('/map.tmx');
 
