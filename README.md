@@ -3,7 +3,7 @@
 Library for reading Tiled .tmx map files,
 with a support class for rendering as JSON objects.
 
-Example
+Example:
 
 ```php
 $tiled = new \TiledTmx\Parser();
