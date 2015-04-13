@@ -10,10 +10,8 @@ php:
 
 matrix:
   allow_failures:
-    php:
-      - hhvm
-      - hhvm-nightly
-
+    - php: hhvm
+    - php: hhvm-nightly
 
 script:
   - phpunit
