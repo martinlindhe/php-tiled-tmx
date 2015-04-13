@@ -1,5 +1,8 @@
 ## About
 
+
+[![Build Status](https://travis-ci.org/martinlindhe/php-tiled-tmx.png?branch=master)](https://travis-ci.org/martinlindhe/php-tiled-tmx)
+
 Library for reading Tiled .tmx map files,
 with a support class for rendering as JSON objects.
 
