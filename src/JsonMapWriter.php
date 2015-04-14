@@ -1,5 +1,4 @@
-<?php
-namespace TiledTmx;
+<?php namespace TiledTmx;
 
 /**
  * Writes a compact JSON object representing a Tiled map

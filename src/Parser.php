@@ -1,5 +1,4 @@
-<?php
-namespace TiledTmx;
+<?php namespace TiledTmx;
 
 /**
  * Parses Tiled .xml maps
@@ -24,18 +23,16 @@ class Parser
     }
 
     /**
+     * @param string $fileName
      * @return TiledMap
      */
     public function parseFile($fileName)
     {
-        if (!file_exists($fileName)) {
-            throw new \Exception('file not found: '.$fileName);
-        }
-
         return $this->parseData(file_get_contents($fileName));
     }
 
     /**
+     * @param string $data
      * @return TiledMap
      */
     public function parseData($data)

@@ -1,5 +1,4 @@
-<?php
-namespace TiledTmx;
+<?php namespace TiledTmx;
 
 class TiledLayer
 {
