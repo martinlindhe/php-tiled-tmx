@@ -5,23 +5,6 @@
  */
 class Parser
 {
-    private $parser;
-    private $map;
-
-    private $currentTag = null;
-    private $currentTileset = null;
-    private $currentLayer = null;
-
-    public function __construct()
-    {
-        $this->parser = xml_parser_create();
-        $this->map = new TiledMap();
-
-        xml_set_object($this->parser, $this);
-        xml_set_element_handler($this->parser, 'tagOpen', 'tagClose');
-        xml_set_character_data_handler($this->parser, 'cdata');
-    }
-
     /**
      * @param string $fileName
      * @return TiledMap
@@ -34,81 +17,97 @@ class Parser
     /**
      * @param string $data
      * @return TiledMap
+     * @throws \Exception
      */
     public function parseData($data)
     {
-        xml_parse($this->parser, $data);
-        return $this->map;
-    }
+        $obj = new \SimpleXMLElement($data);
 
-    private function tagOpen($parser, $tag, $attributes)
-    {
-        $this->currentTag = $tag;
+        // <map> attributes
+        $map = new TiledMap;
+        $this->xmlAttributesToObject($obj, $map);
 
-        if ($tag == 'MAP') {
-            $this->map->version = $attributes['VERSION'];
-            $this->map->orientation = $attributes['ORIENTATION'];
-            $this->map->width = $attributes['WIDTH'];
-            $this->map->height = $attributes['HEIGHT'];
-            $this->map->tileWidth = $attributes['TILEWIDTH'];
-            $this->map->tileHeight = $attributes['TILEHEIGHT'];
-        } else if ($tag == 'TILESET') {
-            $set = new TiledTileSet();
-            $set->firstGid = $attributes['FIRSTGID'];
-            $set->name = $attributes['NAME'];
-            $set->tileWidth = $attributes['TILEWIDTH'];
-            $set->tileHeight = $attributes['TILEHEIGHT'];
-            $this->currentTileset = $set;
-        } else if ($tag == 'IMAGE') {
-            // NOTE assumes inside TILESET tag
-            $img = new TiledImage();
-            $img->source = $attributes['SOURCE'];
-            $img->width = $attributes['WIDTH'];
-            $img->height = $attributes['HEIGHT'];
-            $this->currentTileset->images[] = $img;
-        } else if ($tag == 'LAYER') {
-            $layer = new TiledLayer();
-            $layer->name = $attributes['NAME'];
-            $layer->width = $attributes['WIDTH'];
-            $layer->height = $attributes['HEIGHT'];
-            $this->currentLayer = $layer;
-        } else if ($tag == 'DATA') {
-            $this->currentLayer->encoding = $attributes['ENCODING'];
-            $this->currentLayer->compression = $attributes['COMPRESSION'];
-        } else {
-            var_dump($parser, $tag, $attributes);
-            throw new \Exception('unrecognized tag: '.$tag);
-        }
-    }
+        // <tileset> + attributes and content
+        foreach ($obj->tileset as $tileset) {
 
-    private function tagClose($parser, $tag)
-    {
-        $this->currentTag = null;
-        if ($tag == 'TILESET') {
-            $this->map->tileSets[] = $this->currentTileset;
-            $this->currentTileset = null;
-        } else if ($tag == 'LAYER') {
-            $this->map->layers[] = $this->currentLayer;
-            $this->currentLayer = null;
-        }
-    }
+            $set = new TiledTileSet;
+            $this->xmlAttributesToObject($tileset, $set);
 
-    private function cdata($parser, $cdata)
-    {
-        if ($this->currentTag == 'DATA') {
-            if ($this->currentLayer->encoding == 'base64') {
-                $cdata = base64_decode($cdata);
-            } else {
-                throw new \Exception('unhandled layer encoding: '.$this->currentLayer->encoding);
+            // <image>
+            foreach ($tileset->image as $image) {
+
+                $im = new TiledImage;
+                $this->xmlAttributesToObject($image, $im);
+
+                $set->images[] = $im;
             }
 
-            if ($this->currentLayer->compression == 'zlib') {
-                $cdata = zlib_decode($cdata);
-            } else {
-                throw new \Exception('unhandled layer compression: '.$this->currentLayer->compression);
+            // <tileoffset>
+            if (isset($tileset->tileoffset)) {
+                $set->offsetX = (int) $tileset->tileoffset->attributes()->x;
+                $set->offsetY = (int) $tileset->tileoffset->attributes()->y;
             }
 
-            $this->currentLayer->data = array_values(unpack('V*', $cdata));
+            // <terraintypes>
+            if (isset($tileset->terraintypes->terrain)) {
+                foreach ($tileset->terraintypes->terrain as $currentTerrain) {
+                    $terrain = new TiledTerrain;
+                    $this->xmlAttributesToObject($currentTerrain, $terrain);
+                    $set->terrainTypes[] = $terrain;
+                }
+            }
+
+            // <tile>
+            foreach ($tileset->tile as $currentTile) {
+                $tile = new TiledTile;
+                $this->xmlAttributesToObject($currentTile, $tile);
+                $set->tiles[] = $tile;
+            }
+
+            $map->tileSets[] = $set;
+        }
+
+        // <layer> + attributes and content
+        foreach ($obj->layer as $currentLayer) {
+
+            $layer = new TiledLayer;
+
+            $this->xmlAttributesToObject($currentLayer, $layer);
+
+            // content
+            $layer->encoding = (string) $currentLayer->data->attributes()->encoding;
+            $layer->compression = (string) $currentLayer->data->attributes()->compression;
+
+            if ($layer->encoding != 'base64' || $layer->compression != 'zlib') {
+                throw new \Exception('Unhandled encoding/compression: '.$layer->encoding.', '.$layer->compression);
+            }
+
+            $cdata = base64_decode($currentLayer->data);
+            $cdata = zlib_decode($cdata);
+            $layer->data = array_values(unpack('V*', $cdata));
+
+            $map->layers[] = $layer;
+        }
+
+        return $map;
+    }
+
+    private function xmlAttributesToObject(\SimpleXMLElement $el, ITiledObject &$obj)
+    {
+        foreach ($el->attributes() as $name => $val) {
+            $name = (string) $name;
+            $attrMap = [
+                'tilewidth' => 'tileWidth',
+                'tileheight' => 'tileHeight',
+                'renderorder' => 'renderOrder',
+                'firstgid' => 'firstGid',
+            ];
+            if (array_key_exists($name, $attrMap)) {
+                $name = $attrMap[$name];
+            }
+
+            $obj->$name = (string) $val;
         }
     }
+
 }

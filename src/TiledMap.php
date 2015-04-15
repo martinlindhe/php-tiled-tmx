@@ -1,14 +1,18 @@
 <?php namespace TiledTmx;
 
-class TiledMap
+class TiledMap implements ITiledObject
 {
     var $version;
     var $orientation;
+    var $renderOrder = 'right-down';
     var $width;
     var $height;
     var $tileWidth;
     var $tileHeight;
 
-    var $tileSets = array();
-    var $layers = array();
+    /** @var TiledTileSet[] */
+    var $tileSets = [];
+
+    /** @var TiledLayer[] */
+    var $layers = [];
 }

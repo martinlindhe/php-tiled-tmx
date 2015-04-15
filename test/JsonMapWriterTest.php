@@ -5,7 +5,7 @@ class WriterJsonMapTest extends \PHPUnit_Framework_TestCase
     function test1()
     {
         $tiled = new \TiledTmx\Parser();
-        $map = $tiled->parseFile(__DIR__.'/testMap1.tmx');
+        $map = $tiled->parseFile(__DIR__.'/data/testMap1.tmx');
 
         $this->assertEquals(
             '{'.

@@ -13,6 +13,8 @@
         "php": ">=5.4.0"
     },
     "require-dev": {
+        "martinlindhe/php-debughelper": "~0.1",
+        "phpunit/phpunit": "~4.6",
         "squizlabs/php_codesniffer": "~2.0"
     },
     "autoload": {

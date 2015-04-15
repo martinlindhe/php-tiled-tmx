@@ -17,3 +17,6 @@ echo \TiledTmx\JsonMapWriter::render($map);
 
 
 The Tiled Map Editor can be downloaded at http://www.mapeditor.org/
+
+
+The Tiled TMX format is documented here: https://github.com/bjorn/tiled/wiki/TMX-Map-Format
