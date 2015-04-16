@@ -1,6 +1,9 @@
 <?php namespace TiledTmx;
 
-class TiledImage implements ITiledObject
+/**
+ * <image> tag
+ */
+class TiledImage extends TiledObject
 {
     var $source;
     var $width;

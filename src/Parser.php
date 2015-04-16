@@ -39,13 +39,15 @@ class Parser
                 $im = new TiledImage;
                 $this->xmlAttributesToObject($image, $im);
 
-                $set->images[] = $im;
+                $set->image[] = $im;
             }
 
             // <tileoffset>
             if (isset($tileset->tileoffset)) {
-                $set->offsetX = (int) $tileset->tileoffset->attributes()->x;
-                $set->offsetY = (int) $tileset->tileoffset->attributes()->y;
+                $tileoffset = new TiledTileOffset;
+                $tileoffset->x = (int) $tileset->tileoffset->attributes()->x;
+                $tileoffset->y = (int) $tileset->tileoffset->attributes()->y;
+                $set->tileoffset = $tileoffset;
             }
 
             // <terraintypes>
@@ -53,7 +55,7 @@ class Parser
                 foreach ($tileset->terraintypes->terrain as $currentTerrain) {
                     $terrain = new TiledTerrain;
                     $this->xmlAttributesToObject($currentTerrain, $terrain);
-                    $set->terrainTypes[] = $terrain;
+                    $set->terraintypes[] = $terrain;
                 }
             }
 
@@ -61,10 +63,10 @@ class Parser
             foreach ($tileset->tile as $currentTile) {
                 $tile = new TiledTile;
                 $this->xmlAttributesToObject($currentTile, $tile);
-                $set->tiles[] = $tile;
+                $set->tile[] = $tile;
             }
 
-            $map->tileSets[] = $set;
+            $map->tileset[] = $set;
         }
 
         // <layer> + attributes and content
@@ -86,26 +88,16 @@ class Parser
             $cdata = zlib_decode($cdata);
             $layer->data = array_values(unpack('V*', $cdata));
 
-            $map->layers[] = $layer;
+            $map->layer[] = $layer;
         }
 
         return $map;
     }
 
-    private function xmlAttributesToObject(\SimpleXMLElement $el, ITiledObject &$obj)
+    private function xmlAttributesToObject(\SimpleXMLElement $el, TiledObject &$obj)
     {
         foreach ($el->attributes() as $name => $val) {
             $name = (string) $name;
-            $attrMap = [
-                'tilewidth' => 'tileWidth',
-                'tileheight' => 'tileHeight',
-                'renderorder' => 'renderOrder',
-                'firstgid' => 'firstGid',
-            ];
-            if (array_key_exists($name, $attrMap)) {
-                $name = $attrMap[$name];
-            }
-
             $obj->$name = (string) $val;
         }
     }

@@ -1,22 +1,24 @@
 <?php namespace TiledTmx;
 
-class TiledTileSet implements ITiledObject
+/**
+ * <tileset> tag
+ */
+class TiledTileSet extends TiledObject
 {
-    var $firstGid;
+    var $firstgid;
     var $name;
-    var $tileWidth;
-    var $tileHeight;
+    var $tilewidth;
+    var $tileheight;
 
-    // corresponds to <tileoffset> tag inside a <tileset>
-    var $offsetX = 0;
-    var $offsetY = 0;
+    /** @var TiledTileOffset */
+    var $tileoffset;
 
     /** @var TiledImage[] */
-    var $images = [];
+    var $image = [];
 
-    /** @var TiledTerrain[] */
-    var $terrainTypes = [];
+    /** @var TiledTerrain[] holds the <terraintypes> content tags (<terrain>) */
+    var $terraintypes = [];
 
     /** @var TiledTile[] */
-    var $tiles = [];
+    var $tile = [];
 }

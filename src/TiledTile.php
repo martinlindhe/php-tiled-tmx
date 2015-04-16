@@ -1,6 +1,9 @@
 <?php namespace TiledTmx;
 
-class TiledTile implements ITiledObject
+/**
+ * <tile> tag
+ */
+class TiledTile extends TiledObject
 {
     var $id;
     var $terrain;
