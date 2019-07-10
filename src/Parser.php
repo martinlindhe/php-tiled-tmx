@@ -80,6 +80,12 @@ class Parser
             $layer->encoding = (string) $currentLayer->data->attributes()->encoding;
             $layer->compression = (string) $currentLayer->data->attributes()->compression;
 
+            if ($currentLayer->properties->property) {
+                foreach ($currentLayer->properties->property as $property) {
+                    $layer->properties[(string)$property->attributes()->name] = (string)$property->attributes()->value;
+                }
+            }
+
             if ($layer->encoding != 'base64' || $layer->compression != 'zlib') {
                 throw new \Exception('Unhandled encoding/compression: '.$layer->encoding.', '.$layer->compression);
             }

@@ -10,6 +10,7 @@ class TiledLayer extends TiledObject
     var $height;
     var $encoding;
     var $compression;
+    var $properties;
 
     /** @var string */
     var $data;
