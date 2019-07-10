@@ -80,7 +80,7 @@ class Parser
             $layer->encoding = (string) $currentLayer->data->attributes()->encoding;
             $layer->compression = (string) $currentLayer->data->attributes()->compression;
 
-            if ($currentLayer->properties->property) {
+            if ($currentLayer->properties && $currentLayer->properties->property) {
                 foreach ($currentLayer->properties->property as $property) {
                     $layer->properties[(string)$property->attributes()->name] = (string)$property->attributes()->value;
                 }
